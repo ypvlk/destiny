@@ -1,0 +1,82 @@
+version: '3.8'
+services:
+  ##########
+  # Internal / External Services
+  ##########
+  modules:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: modules
+    image: modules
+    container_name: modules
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - 8888:8080
+  main-db:
+    build:
+      context: .
+      dockerfile: deploy/db/Dockerfile
+    restart: always
+    container_name: main-db
+    volumes:
+      - ./.postgres-cache:/var/lib/postgresql/data:delegated
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: d_main, second
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: d_main
+      POSTGRES_USER: yarik
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '5432:5432'
+    command: "postgres -c 'config_file=/etc/postgresql/postgresql.conf'"
+    depends_on:
+      - adminer
+  ngx:
+    image: nginx:1.18-alpine
+    container_name: ngx
+    ports:
+      - '8881:80'
+    volumes:
+      - ./deploy/ngx/nginx.conf:/etc/nginx/conf.d/
+  ##########
+  # Microservices
+  ##########
+  backend:
+    build:
+      context: apps/backend
+      dockerfile: Dockerfile
+      target: backend-dev
+    image: backend
+    container_name: backend
+    ports:
+      #- '9239:9229'
+      #- '9242:9239'
+      #- '9243:9240'
+    volumes:
+      - ./modules:/opt/app/modules:ro
+      - ./apps/backend:/opt/app/apps/backend:cached
+      - backend_node_modules:/opt/app/apps/backend/node_modules
+    expose:
+      - '8881'
+    environment:
+      - NODE_ENV=development
+      - PORT=8881
+      - DB_HOST=main-db
+      - DB_PORT=5432
+      - DB_USERNAME=yarik
+      - DB_PASSWORD=123
+      - DB_DATABASE=d_main
+      #- JWT_PUBLIC=vault://development/jwt/public
+      #- JWT_SECRET=vault://development/jwt/secret
+      - JWT_TTL=28800
+      - JWT_ALGO=HS512
+      - ALLOWED_ORIGINS=http://localhost:8880
+    depends_on:
+      - main-db
+      - ngx
+volumes:
+  backend_node_modules:

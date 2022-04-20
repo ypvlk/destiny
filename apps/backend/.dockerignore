@@ -1,0 +1,4 @@
+**/.git
+**/.tscache
+**/dist
+**/node_modules

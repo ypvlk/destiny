@@ -1,0 +1,31 @@
+{
+  "name": "destiny",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "clean": "lerna run clean:dist && lerna run clean:nm && rimraf node_modules",
+    "clean:nm": "lerna run clean:nm && rimraf node_modules",
+    "clean:dist": "lerna run clean:dist",
+    "clean:cache": "rimraf .postgres-cache",
+    "build": "lerna run build",
+    "start:dev": "LOG_LEVEL=debug nodemon apps/backend/dist/src/main.js",
+    "test:unit": "lerna run test:unit",
+    "lint": "lerna run lint",
+    "lint:fix": "lerna run lint:fix",
+    "docker:build:modules": "COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build modules"
+  },
+  "author": "Yaroslav Pavliuk",
+  "license": "ISC",
+  "workspaces": {
+    "packages": [
+      "apps/backend",
+      "modules/*"
+    ]
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "rimraf": "^3.0.2"
+  }
+}

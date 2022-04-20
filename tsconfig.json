@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "incremental": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@destiny/logger": ["./modules/Logger/index"],
+      "@destiny/jwt-verification": ["./modules/JWTVerification/index"],
+      "@destiny/exception-handling": ["./modules/ExceptionHandling/index"],
+      "@destiny/shared-interfaces": ["./modules/Interfaces/index"],
+      "@destiny/nest-cqrs": ["./modules/NestCQRS/index"],
+      "@destiny/permissions-roles": ["./modules/PermissionsRoles/index"]
+    }
+  }
+}
